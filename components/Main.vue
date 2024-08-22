@@ -49,6 +49,7 @@ export default {
       toCurrency: 'USD',
       exchangeRates: null,
       result: null,
+      currentDate: this.getCurrentDate(), // Initialise avec la date et l'heure actuelles
     };
   },
   computed: {
@@ -58,15 +59,17 @@ export default {
     formattedResult() {
       return `${this.amount.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} ${this.fromCurrency} = ${this.result.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} ${this.currencyName(this.toCurrency)}`;
     },
-    currentDate() {
-      return new Date().toLocaleString('fr-FR', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
-    }
   },
   async mounted() {
     await this.fetchExchangeRates();
     this.convertCurrency();
   },
+  // Méthodes de l'objet
   methods: {
+    // Retourne la date et l'heure actuelles
+    getCurrentDate() {
+      return new Date().toLocaleString('fr-FR', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+    },
     async fetchExchangeRates() {
       try {
         const response = await fetch('https://www.floatrates.com/daily/eur.json');
@@ -78,35 +81,37 @@ export default {
         console.error('Error fetching exchange rates:', error);
       }
     },
+    // Convertit le montant de la devise de départ à la devise d'arrivée
     convertCurrency() {
       if (!this.exchangeRates) return;
-      
+      // Taux de change pour la devise de départ
       const rateFromEuro = this.fromCurrency === 'EUR' 
         ? 1 
         : this.exchangeRates[this.fromCurrency.toLowerCase()]?.rate || 1;
-      
+      // Taux de change pour la devise d'arrivée
       const rateToEuro = this.toCurrency === 'EUR' 
         ? 1 
         : this.exchangeRates[this.toCurrency.toLowerCase()]?.rate || 1;
-      
+      // Calcul du taux de change
       const conversionRate = rateToEuro / rateFromEuro;
       this.result = (this.amount * conversionRate).toFixed(2);
+      this.updateCurrentDate(); // Met à jour la date et l'heure après la conversion
     },
+    // Inverse les devises de départ et d'arrivée
     swapCurrencies() {
       const temp = this.fromCurrency;
       this.fromCurrency = this.toCurrency;
       this.toCurrency = temp;
       this.convertCurrency();
     },
+    // Retourne le nom de la devise en fonction de son code
     currencyName(currencyCode) {
-      const currencyNames = {
-        EUR: 'Euro',
-        USD: 'U.S. Dollar',
-        GBP: 'Pound Sterling',
-        // Ajoutez d'autres devises si nécessaire
-      };
-      return currencyNames[currencyCode] || currencyCode;
-    }
+      return new Intl.DisplayNames(['fr'], { type: 'currency' }).of(currencyCode);
+    },
+    // Met à jour la date et l'heure actuelles
+    updateCurrentDate() {
+      this.currentDate = this.getCurrentDate();
+    },
   },
   watch: {
     amount() {
@@ -127,15 +132,15 @@ export default {
 .convertisseur {
   display: flex;
   align-items: center;
-
+  background: linear-gradient(90deg, rgba(255,4,60,1) 56%, rgba(255,129,10,1) 100%);
 }
 .currency-converter {
   border: 2px solid black;
   padding: 20px;
-  max-width: 500px;
-  margin: 50px auto;
+  max-width: 800px;
+  margin: 5px auto;
   font-family: 'Courier New', Courier, monospace;
-  background-color: #f8f8f8;
+  background-color: #f9efef;
 }
 
 .conversion-result {
@@ -158,17 +163,20 @@ h4 {
 .montant {
   width: 50px;
   padding: 20px;
+  color: white;
   
 }
 
 .de {
   width: 50px;
   padding: 20px;
+  color: white;
 }
 
 .vers {
   width: 50px;
   padding: 20px;
+  color: white;
 }
 
 </style>

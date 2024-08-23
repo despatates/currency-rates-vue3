@@ -3,12 +3,12 @@
     <v-col cols="12" class="text-center pb-0">
       <div class="d-flex">
         <img src="../docs/logo-cd.png" alt="logo-accueil">
-        <h3>Convertisseur de devises</h3>
+        <h1>Convertisseur de devises</h1>
       </div>
       <div class="converter">
-        <v-text-field v-model="amount" label="Montant" type="number" class="amount" outlined />
+        <v-text-field v-model="amount" label="Montant" type="number" class="amount" :rules="[v => v >= 0 ]" outlined />
         <v-select v-model="fromCurrency" :items="currencyOptions" label="De" class="de" outlined />
-        <v-icon @click="swapCurrencies" class="icon-change" color="black">
+        <v-icon @click="swapCurrencies" class="icon-change" color="white">
           mdi-swap-horizontal
         </v-icon>
         <v-select v-model="toCurrency" :items="currencyOptions" label="Vers" class="vers" outlined />
@@ -23,7 +23,7 @@
     </v-col>
   </v-row>
   <div class="table">
-    <h4>Historique des conversions</h4>
+    <h2>Historique des conversions</h2>
     <v-simple-table>
       <thead>
         <tr>
@@ -49,7 +49,7 @@
 
 <script>
 export default {
-  // Propriétés de l'objet
+  // Object Properties
   data() {
     return {
       amount: 1,
@@ -57,35 +57,35 @@ export default {
       toCurrency: 'USD',
       exchangeRates: null,
       result: null,
-      currentDate: this.getCurrentDate(), // Initialise avec la date et l'heure actuelles
-      conversionHistory: [], // Tableau pour stocker l'historique des conversions
-      initialized: false // Indicateur pour ignorer la première conversion
+      currentDate: this.getCurrentDate(), // Initialize with the current date and time
+      conversionHistory: [], // Table to store conversion history
+      initialized: false, // Flag to skip first conversion
     };
   },
-  // Propriétés calculées de l'objet
+  // Calculated properties of the object
   computed: {
-    // Retourne les options de devise disponibles pour la conversion
+    // Returns the currency options available for conversion
     currencyOptions() {
       return Object.keys(this.exchangeRates || {}).map(currency => currency.toUpperCase());
     },
-    // Retourne le résultat de la conversion de devise formaté
+    // Returns the formatted currency conversion result
     formattedResult() {
       return `${this.amount.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} ${this.currencyName(this.fromCurrency)} = ${this.result.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} ${this.currencyName(this.toCurrency)}`;
     }
     ,
   },
-  // Cycle de vie de l'objet
+  // Object life cycle
   async mounted() {
     await this.fetchExchangeRates();
     this.convertCurrency();
   },
-  // Méthodes de l'objet
+  // Object Methods
   methods: {
-    // Retourne la date et l'heure actuelles
-    //replace permet de changer le format de la date
+    // Returns the current date and time
+    //replace allows you to change the date format
     getCurrentDate() {
       return new Date().toLocaleString('fr-FR', {
-        //détailler l'affichage pour retirer les secondes
+        //detail the display to remove the seconds
         year: 'numeric',
         month: '2-digit',
         day: '2-digit',
@@ -93,40 +93,40 @@ export default {
         minute: '2-digit'
       }).replace(/(\d{2})\/(\d{2})\/(\d{4})/, '$3/$2/$1');
     },
-    // Récupère les taux de change
+    // Get exchange rates
     async fetchExchangeRates() {
       try {
         const response = await fetch('https://www.floatrates.com/daily/eur.json');
         if (!response.ok) {
           throw new Error('Failed to fetch exchange rates');
-        }// Stocke les taux de change dans l'objet exchangeRates
+        }// Stores exchange rates in the exchangeRates object
         this.exchangeRates = await response.json();
       } catch (error) {
         console.error('Error fetching exchange rates:', error);
       }
     },
-    // Convertit le montant de la devise de départ à la devise d'arrivée
+    // Converts the amount from the source currency to the destination currency
     convertCurrency() {
       if (!this.exchangeRates) return;
-      // Taux de change pour la devise de départ
+      // Exchange rate for the starting currency
       const rateFromEuro = this.fromCurrency === 'EUR'
         ? 1
         : this.exchangeRates[this.fromCurrency.toLowerCase()]?.rate || 1;
-      // Taux de change pour la devise d'arrivée
+      // Exchange rate for arrival currency
       const rateToEuro = this.toCurrency === 'EUR'
         ? 1
         : this.exchangeRates[this.toCurrency.toLowerCase()]?.rate || 1;
-      // Calcul du taux de change
+      // Calculating the exchange rate
       const conversionRate = rateToEuro / rateFromEuro;
       this.result = (this.amount * conversionRate).toFixed(2);
-      this.updateCurrentDate(); // Met à jour la date et l'heure après la conversion
+      this.updateCurrentDate(); // Updates date and time after conversion
 
-      // Si le composant n'est pas encore initialisé, on ignore la première conversion
+      // If the component is not yet initialized, the first conversion is ignored.
       if (!this.initialized) {
         this.initialized = true;
-        return; // On sort de la méthode sans ajouter la conversion à l'historique
+        return; // We exit the method without adding the conversion to the history
       }
-      // Ajouter la conversion à l'historique uniquement si le résultat est supérieur à 0
+      // Add to history only if result is greater than 0
       if (parseFloat(this.result) > 0) {
         this.conversionHistory.push({
           date: this.currentDate,
@@ -137,45 +137,37 @@ export default {
         });
       }
     },
-    // Inverse les devises de départ et d'arrivée
+    // Reverses the source and destination currencies
     swapCurrencies() {
       const temp = this.fromCurrency;
       this.fromCurrency = this.toCurrency;
       this.toCurrency = temp;
       this.convertCurrency();
     },
-    // Retourne le nom de la devise en fonction de son code
+    // Returns the currency name based on its code
     currencyName(currencyCode) {
       return new Intl.DisplayNames(['fr'], { type: 'currency' }).of(currencyCode);
     },
-    // Méthode pour basculer entre le mode clair et le mode sombre
+    // Method to switch between light mode and dark mode
     toggleDarkMode() {
       this.$vuetify.theme.dark = !this.$vuetify.theme.dark;
     },
-    // Met à jour la date et l'heure actuelles
+    // Updates the current date and time
     updateCurrentDate() {
       this.currentDate = this.getCurrentDate();
     },
   },
-  // Surveille les changements des propriétés de l'objet
+  // Monitors changes in object properties
   watch: {
     amount(newVal, oldVal) {
       if (newVal < 0) {
-        this.amount = 0;  // Remet à zéro si la valeur est négative
+        this.amount = 0;  
+        // Resets to zero if the value is negative
       } else if (newVal !== oldVal) {
-        this.convertCurrency();  // Effectue la conversion si la valeur est valide
+        this.convertCurrency();  
+        // Performs the conversion if the value is valid
       }
     },
-    fromCurrency(newVal, oldVal) {
-      if (newVal !== oldVal) {
-        this.convertCurrency();
-      }
-    },
-    toCurrency(newVal, oldVal) {
-      if (newVal !== oldVal) {
-        this.convertCurrency();
-      }
-    }
   }
 };
 </script>
@@ -187,7 +179,7 @@ img {
   margin-right: 10px;
 }
 
-h3 {
+h1 {
   display: flex;
   font-size: 2rem;
   align-items: center;
@@ -208,6 +200,8 @@ h3 {
   max-width: 800px;
   font-family: 'Courier';
   background-color: #f4f4d9;
+  margin-bottom: 30px;
+  margin-top: 30px;
 }
 
 .dark-theme {
@@ -239,7 +233,7 @@ h3 {
 .table {
   padding: 10px;
   text-align: center;
-  width: 600px;
+  width: 100%;
 }
 
 h4 {
@@ -249,7 +243,7 @@ h4 {
 
 .icon-change {
   border-radius: 10px;
-  font-size: 2em;
+  font-size: 1.9em;
   cursor: pointer;
   border: 2px solid rgb(255, 255, 255);
   padding: 10px;

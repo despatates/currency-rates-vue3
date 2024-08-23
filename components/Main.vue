@@ -1,12 +1,12 @@
 <template>
-  <v-row class="currency-converter">
-    <v-col cols="12" class="text-center">
+  <v-row :class="[$vuetify.theme.dark ? 'currency-converter dark-theme' : 'currency-converter light-theme']">
+    <v-col cols="12" class="text-center pb-0">
       <div class="d-flex">
         <img src="../docs/logo-cd.png" alt="logo-accueil">
         <h3>Convertisseur de devises</h3>
       </div>
-      <div class="convertisseur">
-        <v-text-field v-model="amount" label="Montant" type="number" class="montant" outlined />
+      <div class="converter">
+        <v-text-field v-model="amount" label="Montant" type="number" class="amount" outlined />
         <v-select v-model="fromCurrency" :items="currencyOptions" label="De" class="de" outlined />
         <v-icon @click="swapCurrencies" class="icon-change" color="black">
           mdi-swap-horizontal
@@ -18,8 +18,11 @@
         <p>{{ currentDate }}</p>
       </div>
     </v-col>
+    <v-col cols="12" class="switch-theme">
+      <v-switch v-model="$vuetify.theme.dark" label="Sombre/Clair" class="mt-4"></v-switch>
+    </v-col>
   </v-row>
-  <div class="mt-5">
+  <div class="table">
     <h4>Historique des conversions</h4>
     <v-simple-table>
       <thead>
@@ -55,7 +58,8 @@ export default {
       exchangeRates: null,
       result: null,
       currentDate: this.getCurrentDate(), // Initialise avec la date et l'heure actuelles
-      conversionHistory: [] // Tableau pour stocker l'historique des conversions
+      conversionHistory: [], // Tableau pour stocker l'historique des conversions
+      initialized: false // Indicateur pour ignorer la première conversion
     };
   },
   // Propriétés calculées de l'objet
@@ -66,8 +70,9 @@ export default {
     },
     // Retourne le résultat de la conversion de devise formaté
     formattedResult() {
-      return `${this.amount.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} ${this.fromCurrency} = ${this.result.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} ${this.currencyName(this.toCurrency)}`;
-    },
+      return `${this.amount.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} ${this.currencyName(this.fromCurrency)} = ${this.result.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} ${this.currencyName(this.toCurrency)}`;
+    }
+    ,
   },
   // Cycle de vie de l'objet
   async mounted() {
@@ -79,15 +84,15 @@ export default {
     // Retourne la date et l'heure actuelles
     //replace permet de changer le format de la date
     getCurrentDate() {
-    return new Date().toLocaleString('fr-FR', {
-      //détailler l'affichage pour retirer les secondes
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit'
-    }).replace(/(\d{2})\/(\d{2})\/(\d{4})/, '$3/$2/$1');
-  },
+      return new Date().toLocaleString('fr-FR', {
+        //détailler l'affichage pour retirer les secondes
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+      }).replace(/(\d{2})\/(\d{2})\/(\d{4})/, '$3/$2/$1');
+    },
     // Récupère les taux de change
     async fetchExchangeRates() {
       try {
@@ -116,14 +121,21 @@ export default {
       this.result = (this.amount * conversionRate).toFixed(2);
       this.updateCurrentDate(); // Met à jour la date et l'heure après la conversion
 
-      // Ajouter la conversion à l'historique
-      this.conversionHistory.push({
-        date: this.currentDate,
-        fromCurrency: this.fromCurrency,
-        toCurrency: this.toCurrency,
-        amount: this.amount,
-        result: this.result
-      });
+      // Si le composant n'est pas encore initialisé, on ignore la première conversion
+      if (!this.initialized) {
+        this.initialized = true;
+        return; // On sort de la méthode sans ajouter la conversion à l'historique
+      }
+      // Ajouter la conversion à l'historique uniquement si le résultat est supérieur à 0
+      if (parseFloat(this.result) > 0) {
+        this.conversionHistory.push({
+          date: this.currentDate,
+          fromCurrency: this.fromCurrency,
+          toCurrency: this.toCurrency,
+          amount: this.amount,
+          result: this.result
+        });
+      }
     },
     // Inverse les devises de départ et d'arrivée
     swapCurrencies() {
@@ -136,6 +148,10 @@ export default {
     currencyName(currencyCode) {
       return new Intl.DisplayNames(['fr'], { type: 'currency' }).of(currencyCode);
     },
+    // Méthode pour basculer entre le mode clair et le mode sombre
+    toggleDarkMode() {
+      this.$vuetify.theme.dark = !this.$vuetify.theme.dark;
+    },
     // Met à jour la date et l'heure actuelles
     updateCurrentDate() {
       this.currentDate = this.getCurrentDate();
@@ -144,8 +160,10 @@ export default {
   // Surveille les changements des propriétés de l'objet
   watch: {
     amount(newVal, oldVal) {
-      if (newVal !== oldVal) {
-        this.convertCurrency();
+      if (newVal < 0) {
+        this.amount = 0;  // Remet à zéro si la valeur est négative
+      } else if (newVal !== oldVal) {
+        this.convertCurrency();  // Effectue la conversion si la valeur est valide
       }
     },
     fromCurrency(newVal, oldVal) {
@@ -175,7 +193,7 @@ h3 {
   align-items: center;
 }
 
-.convertisseur {
+.converter {
   display: flex;
   align-items: center;
   border-radius: 10px;
@@ -185,11 +203,21 @@ h3 {
 .currency-converter {
   border: 4px solid rgb(239, 119, 0);
   border-radius: 10px;
-  padding: 20px;
+  padding-left: 20px;
+  padding-right: 20px;
   max-width: 800px;
-  margin: 5px auto;
   font-family: 'Courier';
   background-color: #f4f4d9;
+}
+
+.dark-theme {
+  background-color: #333;
+  color: #fff;
+}
+
+.light-theme {
+  background-color: #f4f4d9;
+  color: #000;
 }
 
 .conversion-result {
@@ -198,8 +226,25 @@ h3 {
   margin-top: 20px;
 }
 
+.table th {
+  padding: 20px;
+  text-align: center;
+}
+
+.table td {
+  padding: 10px;
+  text-align: center;
+}
+
+.table {
+  padding: 10px;
+  text-align: center;
+  width: 600px;
+}
+
 h4 {
   margin: 0;
+  text-align: center;
 }
 
 .icon-change {
@@ -210,7 +255,7 @@ h4 {
   padding: 10px;
 }
 
-.montant {
+.amount {
   width: 50px;
   padding: 20px;
   color: white;
@@ -227,5 +272,9 @@ h4 {
   width: 50px;
   padding: 20px;
   color: white;
+}
+
+.switch-theme {
+  padding: 0;
 }
 </style>

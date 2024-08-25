@@ -13,42 +13,29 @@
         </v-icon>
         <v-select v-model="toCurrency" :items="currencyOptions" label="Vers" class="vers" outlined />
       </div>
-      <div v-if="result" class="conversion-result mt-3">
-        <h4>{{ formattedResult }}</h4>
-        <p>{{ currentDate }}</p>
-      </div>
+      <ConversionResult 
+        :amount="amount"
+        :result="result"
+        :fromCurrency="fromCurrency"
+        :toCurrency="toCurrency"
+      />
     </v-col>
     <v-col cols="12" class="switch-theme">
-      <v-switch v-model="$vuetify.theme.dark" label="Sombre/Clair" class="mt-4"></v-switch>
+      <v-switch v-model="$vuetify.theme.dark" label="Clair/Sombre" class="mt-4"></v-switch>
     </v-col>
   </v-row>
   <div class="table">
     <h2>Historique des conversions</h2>
-    <v-simple-table>
-      <thead>
-        <tr>
-          <th>Date</th>
-          <th>Montant</th>
-          <th>De</th>
-          <th>Vers</th>
-          <th>Résultat</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="(conversion, index) in conversionHistory" :key="index">
-          <td>{{ conversion.date }}</td>
-          <td>{{ conversion.amount }}</td>
-          <td>{{ conversion.fromCurrency }}</td>
-          <td>{{ conversion.toCurrency }}</td>
-          <td>{{ conversion.result }}</td>
-        </tr>
-      </tbody>
-    </v-simple-table>
+    <v-data-table :items="conversionHistory"></v-data-table>
   </div>
 </template>
 
 <script>
+
+import ConversionResult from './ConversionResult.vue';
+
 export default {
+  
   // Object Properties
   data() {
     return {
@@ -66,13 +53,9 @@ export default {
   computed: {
     // Returns the currency options available for conversion
     currencyOptions() {
-      return Object.keys(this.exchangeRates || {}).map(currency => currency.toUpperCase());
+      return Object.keys(this.exchangeRates || {}).map(currency => currency.toUpperCase()).sort();
     },
-    // Returns the formatted currency conversion result
-    formattedResult() {
-      return `${this.amount.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} ${this.currencyName(this.fromCurrency)} = ${this.result.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} ${this.currencyName(this.toCurrency)}`;
-    }
-    ,
+    
   },
   // Object life cycle
   async mounted() {
@@ -101,6 +84,8 @@ export default {
           throw new Error('Failed to fetch exchange rates');
         }// Stores exchange rates in the exchangeRates object
         this.exchangeRates = await response.json();
+        // Adds the euro to euro exchange rate
+        this.exchangeRates['eur'] = { rate: 1 };
       } catch (error) {
         console.error('Error fetching exchange rates:', error);
       }
@@ -119,6 +104,7 @@ export default {
       // Calculating the exchange rate
       const conversionRate = rateToEuro / rateFromEuro;
       this.result = (this.amount * conversionRate).toFixed(2);
+      console.log('Conversion result:', this.result); 
       this.updateCurrentDate(); // Updates date and time after conversion
 
       // If the component is not yet initialized, the first conversion is ignored.
@@ -144,10 +130,7 @@ export default {
       this.toCurrency = temp;
       this.convertCurrency();
     },
-    // Returns the currency name based on its code
-    currencyName(currencyCode) {
-      return new Intl.DisplayNames(['fr'], { type: 'currency' }).of(currencyCode);
-    },
+    
     // Method to switch between light mode and dark mode
     toggleDarkMode() {
       this.$vuetify.theme.dark = !this.$vuetify.theme.dark;

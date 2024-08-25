@@ -9,12 +9,12 @@
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare"
   },
-  "dependencies": {
-    "@mdi/font": "^7.4.47",
-    "nuxt": "^3.12.4",
-    "vite": "^5.4.2",
-    "vue": "latest"
-  },
+  // "dependencies": {
+  //   "@mdi/font": "^7.4.47",
+  //   "nuxt": "^3.12.4",
+  //   "vite": "^5.4.2",
+  //   "vue": "latest"
+  // },
   "devDependencies": {
     "vite-plugin-vuetify": "^2.0.4",
     "vuetify": "^3.7.0"

@@ -1,6 +1,7 @@
 <template>
   <div v-if="result" class="conversion-result">
     <h4>{{ formattedResult }}</h4>
+    <p>{{ currentDate }}</p>
   </div>
 </template>
 
@@ -12,6 +13,7 @@ export default {
     result: Number,
     fromCurrency: String,
     toCurrency: String,
+    currentDate: String,
   },
   methods: {
 

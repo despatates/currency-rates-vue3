@@ -18,6 +18,7 @@
         :result="result"
         :fromCurrency="fromCurrency"
         :toCurrency="toCurrency"
+        :currentDate="currentDate"
       />
     </v-col>
     <v-col cols="12" class="switch-theme">
@@ -26,13 +27,14 @@
   </v-row>
   <div class="table">
     <h2>Historique des conversions</h2>
-    <v-data-table :items="conversionHistory"></v-data-table>
+    <v-data-table class="table" :items="conversionHistory"></v-data-table>
   </div>
 </template>
 
 <script>
 
 import ConversionResult from './ConversionResult.vue';
+import CurrencyInput from './CurrencyInput.vue';
 
 export default {
   
@@ -208,14 +210,12 @@ h1 {
   text-align: center;
 }
 
-.table td {
-  padding: 10px;
+.table h2{
   text-align: center;
+  padding-bottom: 20px;
 }
 
 .table {
-  padding: 10px;
-  text-align: center;
   width: 100%;
 }
 

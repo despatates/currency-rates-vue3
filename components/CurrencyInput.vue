@@ -33,11 +33,29 @@
 
 <script>
 export default {
-  
   props: {
     amount: Number,
     fromCurrency: String,
     toCurrency: String,
+    currencyOptions: Array, // List of currency options
+  },
+  data() {
+    return {
+      internalAmount: this.amount,
+      internalFromCurrency: this.fromCurrency,
+      internalToCurrency: this.toCurrency,
+    };
+  },
+  watch: {
+    amount(newVal) {
+      this.internalAmount = newVal;
+    },
+    fromCurrency(newVal) {
+      this.internalFromCurrency = newVal;
+    },
+    toCurrency(newVal) {
+      this.internalToCurrency = newVal;
+    },
   },
 };
 </script>
@@ -55,7 +73,6 @@ export default {
   padding: 20px;
   color: white;
 }
-
 
 .icon-change {
   border-radius: 10px;

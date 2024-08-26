@@ -31,7 +31,7 @@ const props = defineProps({
     type: String,
     required: true
   },
-  currentDate: {
+  currentDate: {  // Ajout de currentDate dans les props
     type: String,
     required: true
   },

@@ -7,7 +7,7 @@
       class="amount"
       :rules="[v => v >= 0 ]"
       outlined
-      @input="$emit('updateAmount', $event)"
+      @input="updateAmount"
     />
     <v-select
       v-model="internalFromCurrency"
@@ -15,24 +15,24 @@
       label="De"
       class="de"
       outlined
-      @change="$emit('updateFromCurrency', $event)"
+      @change="updateFromCurrency"
     />
-    <v-btn @click="$emit('swapCurrencies')" class="icon-change" color="white" icon>
-  <v-icon>mdi-swap-horizontal</v-icon>
-</v-btn>
+    <v-btn @click="swapCurrencies" class="icon-change" color="white" icon>
+      <v-icon>mdi-swap-horizontal</v-icon>
+    </v-btn>
     <v-select
       v-model="internalToCurrency"
       :items="currencyOptions"
       label="Vers"
       class="vers"
       outlined
-      @change="$emit('updateToCurrency', $event)"
+      @change="updateToCurrency"
     />
   </div>
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
+import { ref, watch, defineEmits } from 'vue';
 
 // Define props with specific types and default values
 const props = defineProps({
@@ -54,12 +54,36 @@ const props = defineProps({
   },
 });
 
+// Emit events to the parent component
+const emit = defineEmits(['updateAmount', 'updateFromCurrency', 'updateToCurrency']);
+
 // Local state mirroring props to handle internal updates
 const internalAmount = ref(props.amount);
 const internalFromCurrency = ref(props.fromCurrency);
 const internalToCurrency = ref(props.toCurrency);
 
+// Methods for updating parent component's state and handling currency swap
+function updateAmount(event) {
+  internalAmount.value = event.target.value;
+  console.log('Amount updated:', internalAmount.value);  // Log the updated amount
+  emit('updateAmount', internalAmount.value);
+}
 
+function updateFromCurrency(value) {
+  internalFromCurrency.value = value;
+  console.log('FromCurrency updated:', internalFromCurrency.value);  // Log the updated fromCurrency
+  emit('updateFromCurrency', internalFromCurrency.value);
+}
+
+function updateToCurrency(value) {
+  internalToCurrency.value = value;
+  console.log('ToCurrency updated:', internalToCurrency.value);  // Log the updated toCurrency
+  emit('updateToCurrency', internalToCurrency.value);
+}
+
+function swapCurrencies() {
+  emit('swapCurrencies');
+}
 </script>
 
 <style scoped>

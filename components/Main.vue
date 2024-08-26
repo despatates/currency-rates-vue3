@@ -45,7 +45,7 @@ export default {
       fromCurrency: 'EUR',
       toCurrency: 'USD',
       exchangeRates: null,
-      result: null,
+      result: 0,
       currentDate: this.getCurrentDate(), // Initialize with the current date and time
       conversionHistory: [], // Table to store conversion history
       initialized: false, // Flag to skip first conversion

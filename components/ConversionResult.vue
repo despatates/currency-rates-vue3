@@ -1,45 +1,54 @@
 <template>
   <v-row class="conversion-result mt-3" v-if="result">
-  <v-col cols="12">
-    <h4>{{ formattedResult }}</h4>
-  </v-col>
-  <v-col cols="12">
-    <p>{{ currentDate }}</p>
-  </v-col>
-</v-row>
-
+    <v-col cols="12">
+      <h4>{{ formattedResult }}</h4>
+    </v-col>
+    <v-col cols="12">
+      <p>{{ currentDate }}</p>
+    </v-col>
+  </v-row>
 </template>
 
-<script>
+<script setup>
+import { computed } from 'vue';
+import { defineProps } from 'vue';
 
-export default {
-  props: {
-    amount: Number,
-    result: Number,
-    fromCurrency: String,
-    toCurrency: String,
-    currentDate: String,
+// Define props with specific types and default values
+const props = defineProps({
+  amount: {
+    type: Number,
+    required: true
   },
-  methods: {
-
-    getCurrencyName(currencyCode) {
-      return new Intl.DisplayNames(['fr'], { type: 'currency' }).of(currencyCode);
-    },
+  result: {
+    type: Number,
+    required: true
   },
-
-  computed: {
-    // Returns the formatted currency conversion result
-    formattedResult() {
-      const amount = this.amount ? parseFloat(this.amount) : 0;
-      const result = this.result ? parseFloat(this.result) : 0;
-      return `${amount.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} ${this.getCurrencyName(this.fromCurrency)} = ${result.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} ${this.getCurrencyName(this.toCurrency)}`;
-    },
+  fromCurrency: {
+    type: String,
+    required: true
   },
-};
+  toCurrency: {
+    type: String,
+    required: true
+  },
+  currentDate: {
+    type: String,
+    required: true
+  },
+});
 
+// Function to get currency name
+function getCurrencyName(currencyCode) {
+  return new Intl.DisplayNames(['fr'], { type: 'currency' }).of(currencyCode);
+}
+
+// Computed property for formatted result
+const formattedResult = computed(() => {
+  const amount = props.amount ? parseFloat(props.amount) : 0;
+  const result = props.result ? parseFloat(props.result) : 0;
+  return `${amount.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} ${getCurrencyName(props.fromCurrency)} = ${result.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} ${getCurrencyName(props.toCurrency)}`;
+});
 </script>
-
-
 
 <style scoped>
 .conversion-result {

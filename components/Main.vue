@@ -6,12 +6,16 @@
         <h1>Convertisseur de devises</h1>
       </div>
       <div class="converter">
-        <v-text-field v-model="amount" label="Montant" type="number" class="amount" :rules="[v => v >= 0]" outlined />
-        <v-select v-model="fromCurrency" :items="currencyOptions" label="De" class="de" outlined />
-        <v-icon @click="swapCurrencies" class="icon-change" color="white">
-          mdi-swap-horizontal
-        </v-icon>
-        <v-select v-model="toCurrency" :items="currencyOptions" label="Vers" class="vers" outlined />
+        <DeviceConverter
+        :amount="amount"
+        :fromCurrency="fromCurrency"
+        :toCurrency="toCurrency"
+        :currencyOptions="currencyOptions"
+        @updateAmount="amount = $event"
+        @updateFromCurrency="fromCurrency = $event"
+        @updateToCurrency="toCurrency = $event"
+        @swapCurrencies="swapCurrencies"
+      />
       </div>
       <ConversionResult :amount="amount" :result="result" :fromCurrency="fromCurrency" :toCurrency="toCurrency"
         :currentDate="currentDate" />
@@ -29,7 +33,8 @@
 <script>
 
 import ConversionResult from './ConversionResult.vue';
-import CurrencyInput from './CurrencyInput.vue';
+import DeviceConverter from './DeviceConverter.vue';
+
 
 export default {
 
@@ -137,6 +142,11 @@ export default {
     updateCurrentDate() {
       this.currentDate = this.getCurrentDate();
     },
+    // Updates the amount and performs the conversion
+     updateAmount(newAmount) {
+      this.amount = newAmount;
+      this.convertCurrency();
+    },
   },
   // Monitors changes in object properties
   watch: {
@@ -166,12 +176,7 @@ h1 {
   align-items: center;
 }
 
-.converter {
-  display: flex;
-  align-items: center;
-  border-radius: 10px;
-  background: linear-gradient(90deg, rgba(255, 4, 60, 1) 56%, rgba(255, 129, 10, 1) 100%);
-}
+
 
 .currency-converter {
   border: 4px solid rgb(239, 119, 0);
@@ -226,25 +231,6 @@ h4 {
   cursor: pointer;
   border: 2px solid rgb(255, 255, 255);
   padding: 10px;
-}
-
-.amount {
-  width: 50px;
-  padding: 20px;
-  color: white;
-
-}
-
-.de {
-  width: 50px;
-  padding: 20px;
-  color: white;
-}
-
-.vers {
-  width: 50px;
-  padding: 20px;
-  color: white;
 }
 
 .switch-theme {

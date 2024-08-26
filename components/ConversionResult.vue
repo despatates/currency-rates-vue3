@@ -1,8 +1,13 @@
 <template>
-  <div v-if="result" class="conversion-result">
+  <v-row class="conversion-result mt-3" v-if="result">
+  <v-col cols="12">
     <h4>{{ formattedResult }}</h4>
+  </v-col>
+  <v-col cols="12">
     <p>{{ currentDate }}</p>
-  </div>
+  </v-col>
+</v-row>
+
 </template>
 
 <script>
@@ -17,7 +22,7 @@ export default {
   },
   methods: {
 
-    currencyName(currencyCode) {
+    getCurrencyName(currencyCode) {
       return new Intl.DisplayNames(['fr'], { type: 'currency' }).of(currencyCode);
     },
   },
@@ -27,7 +32,7 @@ export default {
     formattedResult() {
       const amount = this.amount ? parseFloat(this.amount) : 0;
       const result = this.result ? parseFloat(this.result) : 0;
-      return `${amount.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} ${this.currencyName(this.fromCurrency)} = ${result.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} ${this.currencyName(this.toCurrency)}`;
+      return `${amount.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} ${this.getCurrencyName(this.fromCurrency)} = ${result.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} ${this.getCurrencyName(this.toCurrency)}`;
     },
   },
 };

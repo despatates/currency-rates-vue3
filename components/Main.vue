@@ -1,25 +1,20 @@
 <template>
-  <v-row :class="[$vuetify.theme.dark ? 'currency-converter dark-theme' : 'currency-converter light-theme']">
+  <v-row :class="['currency-converter', $vuetify.theme.dark ? 'dark-theme' : 'light-theme']">
     <v-col cols="12" class="text-center pb-0">
       <div class="d-flex">
         <img src="../docs/logo-cd.png" alt="logo-accueil">
         <h1>Convertisseur de devises</h1>
       </div>
       <div class="converter">
-        <v-text-field v-model="amount" label="Montant" type="number" class="amount" :rules="[v => v >= 0 ]" outlined />
+        <v-text-field v-model="amount" label="Montant" type="number" class="amount" :rules="[v => v >= 0]" outlined />
         <v-select v-model="fromCurrency" :items="currencyOptions" label="De" class="de" outlined />
         <v-icon @click="swapCurrencies" class="icon-change" color="white">
           mdi-swap-horizontal
         </v-icon>
         <v-select v-model="toCurrency" :items="currencyOptions" label="Vers" class="vers" outlined />
       </div>
-      <ConversionResult 
-        :amount="amount"
-        :result="result"
-        :fromCurrency="fromCurrency"
-        :toCurrency="toCurrency"
-        :currentDate="currentDate"
-      />
+      <ConversionResult :amount="amount" :result="result" :fromCurrency="fromCurrency" :toCurrency="toCurrency"
+        :currentDate="currentDate" />
     </v-col>
     <v-col cols="12" class="switch-theme">
       <v-switch v-model="$vuetify.theme.dark" label="Clair/Sombre" class="mt-4"></v-switch>
@@ -37,7 +32,7 @@ import ConversionResult from './ConversionResult.vue';
 import CurrencyInput from './CurrencyInput.vue';
 
 export default {
-  
+
   // Object Properties
   data() {
     return {
@@ -57,7 +52,7 @@ export default {
     currencyOptions() {
       return Object.keys(this.exchangeRates || {}).map(currency => currency.toUpperCase()).sort();
     },
-    
+
   },
   // Object life cycle
   async mounted() {
@@ -105,9 +100,10 @@ export default {
         : this.exchangeRates[this.toCurrency.toLowerCase()]?.rate || 1;
       // Calculating the exchange rate
       const conversionRate = rateToEuro / rateFromEuro;
-      this.result = (this.amount * conversionRate).toFixed(2);
-      console.log('Conversion result:', this.result); 
+      this.result = Math.round((this.amount * conversionRate) * 100) / 100; // Rounded to 2 decimal places as a number
       this.updateCurrentDate(); // Updates date and time after conversion
+
+
 
       // If the component is not yet initialized, the first conversion is ignored.
       if (!this.initialized) {
@@ -132,7 +128,7 @@ export default {
       this.toCurrency = temp;
       this.convertCurrency();
     },
-    
+
     // Method to switch between light mode and dark mode
     toggleDarkMode() {
       this.$vuetify.theme.dark = !this.$vuetify.theme.dark;
@@ -146,10 +142,10 @@ export default {
   watch: {
     amount(newVal, oldVal) {
       if (newVal < 0) {
-        this.amount = 0;  
+        this.amount = 0;
         // Resets to zero if the value is negative
       } else if (newVal !== oldVal) {
-        this.convertCurrency();  
+        this.convertCurrency();
         // Performs the conversion if the value is valid
       }
     },
@@ -210,7 +206,7 @@ h1 {
   text-align: center;
 }
 
-.table h2{
+.table h2 {
   text-align: center;
   padding-bottom: 20px;
 }

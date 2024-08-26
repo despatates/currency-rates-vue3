@@ -32,7 +32,7 @@
 </template>
 
 <script setup>
-import { ref, watch, defineEmits } from 'vue';
+import { ref, defineEmits } from 'vue';
 
 // Define props with specific types and default values
 const props = defineProps({

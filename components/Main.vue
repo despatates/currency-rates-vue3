@@ -1,5 +1,5 @@
 <template>
-  <v-row :class="['currency-converter', $vuetify.theme.dark ? 'dark-theme' : 'light-theme']">
+  <v-row :class="[darkTheme ? 'dark-theme' : 'light-theme', 'currency-converter']">
     <v-col cols="12" class="text-center pb-0">
       <div class="d-flex">
         <img src="../docs/logo-cd.png" alt="logo-accueil">
@@ -21,7 +21,7 @@
         :currentDate="currentDate" />
     </v-col>
     <v-col cols="12" class="switch-theme">
-      <v-switch v-model="$vuetify.theme.dark" label="Clair/Sombre" class="mt-4"></v-switch>
+      <v-switch v-model="darkTheme" label="Clair/Sombre" class="mt-4"></v-switch>
     </v-col>
   </v-row>
   <div class="table">
@@ -31,13 +31,18 @@
 </template>
 
 <script>
-
+import { inject, computed } from 'vue';
 import ConversionResult from './ConversionResult.vue';
 import DeviceConverter from './DeviceConverter.vue';
 
 
 export default {
-
+  setup() {
+    const darkTheme = inject('darkTheme');
+    return {
+      darkTheme,
+    };
+  },
   // Object Properties
   data() {
     return {

@@ -24,14 +24,11 @@
       <v-switch v-model="darkTheme" label="Clair/Sombre" class="mt-4"></v-switch>
     </v-col>
   </v-row>
-  <div class="table">
-    <h2>Historique des conversions</h2>
-    <v-data-table class="table" :items="conversionHistory"></v-data-table>
-  </div>
+  <ConversionHistory :conversionHistory="conversionHistory" />
 </template>
 
 <script>
-import { inject, computed } from 'vue';
+import { inject } from 'vue';
 import ConversionResult from './ConversionResult.vue';
 import DeviceConverter from './DeviceConverter.vue';
 
@@ -211,19 +208,6 @@ h1 {
   margin-top: 20px;
 }
 
-.table th {
-  padding: 20px;
-  text-align: center;
-}
-
-.table h2 {
-  text-align: center;
-  padding-bottom: 20px;
-}
-
-.table {
-  width: 100%;
-}
 
 h4 {
   margin: 0;

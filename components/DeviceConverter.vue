@@ -62,12 +62,20 @@ const internalAmount = ref(props.amount);
 const internalFromCurrency = ref(props.fromCurrency);
 const internalToCurrency = ref(props.toCurrency);
 
-// Methods for updating parent component's state and handling currency swap
+//reactive function to update the amount
 function updateAmount(event) {
-  internalAmount.value = event.target.value;
+  let newValue = parseFloat(event.target.value);
+
+  //check if the value is a number
+  if (newValue < 0) {
+    newValue = 0;
+  }
+
+  internalAmount.value = newValue;
   console.log('Amount updated:', internalAmount.value);  // Log the updated amount
   emit('updateAmount', internalAmount.value);
 }
+
 
 function updateFromCurrency(value) {
   internalFromCurrency.value = value;

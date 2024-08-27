@@ -7,12 +7,24 @@
         <h1>Convertisseur de devises</h1>
       </div>
       <div class="converter">
-        <DeviceConverter :amount="amount" :fromCurrency="fromCurrency" :toCurrency="toCurrency"
-          :currencyOptions="currencyOptions" @updateAmount="amount = $event" @updateFromCurrency="fromCurrency = $event"
-          @updateToCurrency="toCurrency = $event" @swapCurrencies="swapCurrencies" />
+        <DeviceConverter 
+  :amount="amount" 
+  :fromCurrency="fromCurrency" 
+  :toCurrency="toCurrency"
+  :currencyOptions="currencyOptions" 
+  @updateAmount="amount = $event" 
+  @updateFromCurrency="fromCurrency = $event"
+  @updateToCurrency="toCurrency = $event"
+  @swapCurrencies="swapCurrencies" 
+/>
       </div>
-      <ConversionResult :amount="amount" :result="result" :fromCurrency="fromCurrency" :toCurrency="toCurrency"
-        :currentDate="currentDate" />
+      <ConversionResult 
+  :amount="amount" 
+  :result="result" 
+  :fromCurrency="fromCurrency" 
+  :toCurrency="toCurrency"
+  :currentDate="currentDate"
+/>
     </v-col>
     <v-col cols="12" class="switch-theme">
       <v-switch v-model="darkTheme" label="Clair/Sombre" class="mt-4"></v-switch>
@@ -27,6 +39,8 @@ import ConversionResult from './ConversionResult.vue';
 import DeviceConverter from './DeviceConverter.vue';
 import ConversionHistory from './ConversionHistory.vue';
 
+
+
 export default {
 
   components: {
@@ -34,6 +48,8 @@ export default {
     DeviceConverter,
     ConversionHistory,
   },
+
+  
 
   setup() {
     const darkTheme = inject('darkTheme');

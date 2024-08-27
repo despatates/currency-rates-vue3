@@ -37,8 +37,11 @@ const props = defineProps({
   },
 });
 
+console.log(props.fromCurrency, props.toCurrency);
+
 // Function to get currency name
 function getCurrencyName(currencyCode) {
+  console.log("currency code:", currencyCode);
   return new Intl.DisplayNames(['fr'], { type: 'currency' }).of(currencyCode);
 }
 

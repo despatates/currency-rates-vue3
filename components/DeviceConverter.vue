@@ -15,7 +15,7 @@
       label="De"
       class="de"
       outlined
-      @change="updateFromCurrency"
+      @change="emit('updateFromCurrency', internalFromCurrency)"
     />
     <v-btn @click="swapCurrencies" class="icon-change" color="white" icon>
       <v-icon>mdi-swap-horizontal</v-icon>
@@ -26,7 +26,7 @@
       label="Vers"
       class="vers"
       outlined
-      @change="updateToCurrency"
+      @change="emit('updateToCurrency', internalToCurrency)"
     />
   </div>
 </template>
@@ -60,12 +60,15 @@ const emit = defineEmits(['updateAmount', 'updateFromCurrency', 'updateToCurrenc
 // Local state mirroring props to handle internal updates
 const internalAmount = ref(props.amount);
 const internalFromCurrency = ref(props.fromCurrency);
+
+
+console.log('internalFromCurrency:', internalFromCurrency.value);  // Log the initial value of internalFromCurrency
 const internalToCurrency = ref(props.toCurrency);
+console.log('internalToCurrency:', internalToCurrency.value);  // Log the initial value of internalToCurrency
 
 //reactive function to update the amount
 function updateAmount(event) {
   let newValue = parseFloat(event.target.value);
-
   //check if the value is a number
   if (newValue < 0) {
     newValue = 0;
@@ -78,6 +81,8 @@ function updateAmount(event) {
 
 function swapCurrencies() {
   [internalFromCurrency.value, internalToCurrency.value] = [internalToCurrency.value, internalFromCurrency.value];
+  emit('updateFromCurrency', internalFromCurrency.value);
+  emit('updateToCurrency', internalToCurrency.value);
   emit('swapCurrencies');
 }
 </script>

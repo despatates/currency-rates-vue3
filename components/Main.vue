@@ -17,6 +17,7 @@
   @updateToCurrency="toCurrency = $event"
   @swapCurrencies="swapCurrencies" 
 />
+
       </div>
       <ConversionResult 
   :amount="amount" 
@@ -199,8 +200,6 @@ h1 {
   font-size: 2rem;
   align-items: center;
 }
-
-
 
 .currency-converter {
   border: 4px solid rgb(239, 119, 0);

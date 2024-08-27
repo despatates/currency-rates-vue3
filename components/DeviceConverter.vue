@@ -11,30 +11,29 @@
     />
     <v-select
       v-model="internalFromCurrency"
-      :items="currencyOptions"
+      :items="filteredFromCurrencyOptions"
       label="De"
       class="de"
       outlined
-      @change="emit('updateFromCurrency', internalFromCurrency)"
+      @change="onFromCurrencyChange"
     />
     <v-btn @click="swapCurrencies" class="icon-change" color="white" icon>
       <v-icon>mdi-swap-horizontal</v-icon>
     </v-btn>
     <v-select
       v-model="internalToCurrency"
-      :items="currencyOptions"
+      :items="filteredToCurrencyOptions"
       label="Vers"
       class="vers"
       outlined
-      @change="emit('updateToCurrency', internalToCurrency)"
+      @change="onToCurrencyChange"
     />
   </div>
 </template>
 
 <script setup>
-import { ref, defineEmits } from 'vue';
+import { ref, defineEmits, watch, computed } from 'vue';
 
-// Define props with specific types and default values
 const props = defineProps({
   amount: {
     type: Number,
@@ -54,35 +53,45 @@ const props = defineProps({
   },
 });
 
-// Emit events to the parent component
-const emit = defineEmits(['updateAmount', 'updateFromCurrency', 'updateToCurrency']);
+const emit = defineEmits(['updateAmount', 'updateFromCurrency', 'updateToCurrency', 'swapCurrencies']);
 
-// Local state mirroring props to handle internal updates
 const internalAmount = ref(props.amount);
 const internalFromCurrency = ref(props.fromCurrency);
-
-
-console.log('internalFromCurrency:', internalFromCurrency.value);  // Log the initial value of internalFromCurrency
 const internalToCurrency = ref(props.toCurrency);
-console.log('internalToCurrency:', internalToCurrency.value);  // Log the initial value of internalToCurrency
 
-//reactive function to update the amount
+//Computed properties
+const filteredFromCurrencyOptions = computed(() => {
+  return props.currencyOptions.filter(currency => currency !== internalToCurrency.value);
+});
+
+const filteredToCurrencyOptions = computed(() => {
+  return props.currencyOptions.filter(currency => currency !== internalFromCurrency.value);
+});
+
+watch([internalFromCurrency, internalToCurrency], () => {
+  emit('updateFromCurrency', internalFromCurrency.value);
+  emit('updateToCurrency', internalToCurrency.value);
+});
+//Function to update the amount
 function updateAmount(event) {
   let newValue = parseFloat(event.target.value);
-  //check if the value is a number
   if (newValue < 0) {
     newValue = 0;
   }
-
   internalAmount.value = newValue;
-  console.log('Amount updated:', internalAmount.value);  // Log the updated amount
   emit('updateAmount', internalAmount.value);
 }
 
+function onFromCurrencyChange() {
+  emit('updateFromCurrency', internalFromCurrency.value);
+}
+
+function onToCurrencyChange() {
+  emit('updateToCurrency', internalToCurrency.value);
+}
+//Function to exchange currencies
 function swapCurrencies() {
   [internalFromCurrency.value, internalToCurrency.value] = [internalToCurrency.value, internalFromCurrency.value];
-  emit('updateFromCurrency', internalFromCurrency.value);
-  emit('updateToCurrency', internalToCurrency.value);
   emit('swapCurrencies');
 }
 </script>
@@ -107,5 +116,5 @@ function swapCurrencies() {
   cursor: pointer;
   color: white!important;
   background-color: transparent!important;
-  }
+}
 </style>

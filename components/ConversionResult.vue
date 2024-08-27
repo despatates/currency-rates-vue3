@@ -42,7 +42,7 @@ console.log(props.fromCurrency, props.toCurrency);
 // Function to get currency name
 function getCurrencyName(currencyCode) {
   console.log("currency code:", currencyCode);
-  return new Intl.DisplayNames(['fr'], { type: 'currency' }).of(currencyCode);
+  return new Intl.DisplayNames(['en'], { type: 'currency' }).of(currencyCode);
 }
 
 // Computed property for formatted result

@@ -76,20 +76,8 @@ function updateAmount(event) {
   emit('updateAmount', internalAmount.value);
 }
 
-
-function updateFromCurrency(value) {
-  internalFromCurrency.value = value;
-  console.log('FromCurrency updated:', internalFromCurrency.value);  // Log the updated fromCurrency
-  emit('updateFromCurrency', internalFromCurrency.value);
-}
-
-function updateToCurrency(value) {
-  internalToCurrency.value = value;
-  console.log('ToCurrency updated:', internalToCurrency.value);  // Log the updated toCurrency
-  emit('updateToCurrency', internalToCurrency.value);
-}
-
 function swapCurrencies() {
+  [internalFromCurrency.value, internalToCurrency.value] = [internalToCurrency.value, internalFromCurrency.value];
   emit('swapCurrencies');
 }
 </script>

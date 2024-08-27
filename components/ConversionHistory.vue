@@ -13,18 +13,6 @@
         required: true,
       },
     },
-    methods: {
-      // Add the conversion to the history
-      addConversionToHistory() {
-        this.conversionHistory.push({
-          amount: this.amount,
-          fromCurrency: this.fromCurrency,
-          toCurrency: this.toCurrency,
-          result: this.result,
-          date: this.currentDate,
-        });
-      },
-    },
   };
   </script>
   

@@ -2,20 +2,14 @@
   <v-row :class="[darkTheme ? 'dark-theme' : 'light-theme', 'currency-converter']">
     <v-col cols="12" class="text-center pb-0">
       <div class="d-flex">
-        <img src="../docs/logo-cd.png" alt="logo-accueil">
+        <v-img src="../docs/logo-cd.png" alt="logo-accueil" contain lazy-src="../docs/logo-placeholder.png"
+          aspect-ratio="1.5" class="my-image" />
         <h1>Convertisseur de devises</h1>
       </div>
       <div class="converter">
-        <DeviceConverter
-        :amount="amount"
-        :fromCurrency="fromCurrency"
-        :toCurrency="toCurrency"
-        :currencyOptions="currencyOptions"
-        @updateAmount="amount = $event"
-        @updateFromCurrency="fromCurrency = $event"
-        @updateToCurrency="toCurrency = $event"
-        @swapCurrencies="swapCurrencies"
-      />
+        <DeviceConverter :amount="amount" :fromCurrency="fromCurrency" :toCurrency="toCurrency"
+          :currencyOptions="currencyOptions" @updateAmount="amount = $event" @updateFromCurrency="fromCurrency = $event"
+          @updateToCurrency="toCurrency = $event" @swapCurrencies="swapCurrencies" />
       </div>
       <ConversionResult :amount="amount" :result="result" :fromCurrency="fromCurrency" :toCurrency="toCurrency"
         :currentDate="currentDate" />
@@ -31,15 +25,23 @@
 import { inject } from 'vue';
 import ConversionResult from './ConversionResult.vue';
 import DeviceConverter from './DeviceConverter.vue';
-
+import ConversionHistory from './ConversionHistory.vue';
 
 export default {
+
+  components: {
+    ConversionResult,
+    DeviceConverter,
+    ConversionHistory,
+  },
+
   setup() {
     const darkTheme = inject('darkTheme');
     return {
       darkTheme,
     };
   },
+
   // Object Properties
   data() {
     return {
@@ -96,44 +98,54 @@ export default {
     },
     // Converts the amount from the source currency to the destination currency
     convertCurrency() {
-      if (!this.exchangeRates) return;
-      // Exchange rate for the starting currency
-      const rateFromEuro = this.fromCurrency === 'EUR'
-        ? 1
-        : this.exchangeRates[this.fromCurrency.toLowerCase()]?.rate || 1;
-      // Exchange rate for arrival currency
-      const rateToEuro = this.toCurrency === 'EUR'
-        ? 1
-        : this.exchangeRates[this.toCurrency.toLowerCase()]?.rate || 1;
-      // Calculating the exchange rate
-      const conversionRate = rateToEuro / rateFromEuro;
-      this.result = Math.round((this.amount * conversionRate) * 100) / 100; // Rounded to 2 decimal places as a number
-      this.updateCurrentDate(); // Updates date and time after conversion
+  if (!this.exchangeRates) return;
 
+  const rateFromEuro = this.fromCurrency === 'EUR'
+    ? 1
+    : this.exchangeRates[this.fromCurrency.toLowerCase()]?.rate || 1;
+  const rateToEuro = this.toCurrency === 'EUR'
+    ? 1
+    : this.exchangeRates[this.toCurrency.toLowerCase()]?.rate || 1;
 
+  const conversionRate = rateToEuro / rateFromEuro;
+  this.result = Math.round((this.amount * conversionRate) * 100) / 100;
+  this.updateCurrentDate();
 
-      // If the component is not yet initialized, the first conversion is ignored.
-      if (!this.initialized) {
-        this.initialized = true;
-        return; // We exit the method without adding the conversion to the history
+  // Skip the first conversion
+  if (!this.initialized) {
+        this.initialized = true; 
+        return;
       }
-      // Add to history only if result is greater than 0
-      if (parseFloat(this.result) > 0) {
-        this.conversionHistory.push({
-          date: this.currentDate,
-          fromCurrency: this.fromCurrency,
-          toCurrency: this.toCurrency,
-          amount: this.amount,
-          result: this.result
-        });
-      }
-    },
+
+      // Add the conversion to the history
+  if (parseFloat(this.result) > 0) {
+    this.conversionHistory.push({
+      date: this.currentDate,
+      fromCurrency: this.fromCurrency, 
+      toCurrency: this.toCurrency,      
+      amount: this.amount,
+      result: this.result
+    });
+  }
+}
+,
     // Reverses the source and destination currencies
     swapCurrencies() {
-      const temp = this.fromCurrency;
-      this.fromCurrency = this.toCurrency;
-      this.toCurrency = temp;
-      this.convertCurrency();
+    [this.fromCurrency, this.toCurrency] = [this.toCurrency, this.fromCurrency];
+    console.log('Swapped:', this.fromCurrency, this.toCurrency);
+    this.convertCurrency();
+    console.log('After conversion:', this.result);
+}
+,
+    // Adds the conversion to the history
+    addConversionToHistory() {
+      this.conversionHistory.push({
+        date: this.currentDate,
+        fromCurrency: this.fromCurrency,
+        toCurrency: this.toCurrency,
+        amount: this.amount,
+        result: this.result,
+      });
     },
 
     // Method to switch between light mode and dark mode
@@ -145,7 +157,7 @@ export default {
       this.currentDate = this.getCurrentDate();
     },
     // Updates the amount and performs the conversion
-     updateAmount(newAmount) {
+    updateAmount(newAmount) {
       this.amount = newAmount;
       this.convertCurrency();
     },
@@ -166,12 +178,6 @@ export default {
 </script>
 
 <style scoped>
-img {
-  width: 150px;
-  height: 150px;
-  margin-right: 10px;
-}
-
 h1 {
   display: flex;
   font-size: 2rem;
